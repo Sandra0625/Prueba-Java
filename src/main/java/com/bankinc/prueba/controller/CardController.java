@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/cards")
@@ -18,7 +19,11 @@ public class CardController {
 
     @PostMapping("/generate")
     public ResponseEntity<String> generateCard(@RequestBody CardCreateRequest req) {
-        String cardId = cardService.generateCardNumber(req.getProductId(), req.getHolderName());
+        String username = null;
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            username = SecurityContextHolder.getContext().getAuthentication().getName();
+        }
+        String cardId = cardService.generateCardNumber(req.getProductId(), req.getHolderName(), username);
         return ResponseEntity.ok(cardId);
     }
 

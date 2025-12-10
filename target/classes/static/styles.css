@@ -26,4 +26,7 @@ input{padding:10px;border-radius:8px;border:1px solid #dcdfe6;flex:1}
 .btn{background:var(--accent);color:white;padding:10px 14px;border-radius:999px;border:0;cursor:pointer}
 .btn:active{transform:translateY(1px)}
 .results pre{background:#f7f7f9;padding:12px;border-radius:8px;max-height:320px;overflow:auto}
+/* helper class for hiding elements */
+.hidden{display:none}
+.btn.danger{background:#d9534f}
 @media(max-width:600px){.row{flex-direction:column;align-items:stretch}input{width:100%}}

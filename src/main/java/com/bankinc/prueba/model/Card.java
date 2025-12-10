@@ -1,10 +1,12 @@
 package com.bankinc.prueba.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "cards")
 public class Card {
 
@@ -30,6 +32,10 @@ public class Card {
     private boolean active = false;
 
     private boolean blocked = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private com.bankinc.prueba.model.User owner;
 
     // Getters y Setters
     public Long getId() {
@@ -94,5 +100,13 @@ public class Card {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public com.bankinc.prueba.model.User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(com.bankinc.prueba.model.User owner) {
+        this.owner = owner;
     }
 }

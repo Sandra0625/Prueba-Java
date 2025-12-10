@@ -8,7 +8,10 @@ function show(v){
 }
 
 async function postForm(url, body){
-  const res = await fetch(url, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)} : {method:'POST'});
+  const token = localStorage.getItem('bankinc_token');
+  const headers = {'Content-Type':'application/json'};
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(url, body ? {method:'POST', headers, body: JSON.stringify(body)} : {method:'POST', headers});
   const txt = await res.text();
   let parsed;
   try{ parsed = JSON.parse(txt) }catch(e){ parsed = txt }
@@ -17,7 +20,10 @@ async function postForm(url, body){
 }
 
 async function getJson(url){
-  const res = await fetch(url);
+  const token = localStorage.getItem('bankinc_token');
+  const headers = {};
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(url, {headers});
   const txt = await res.text();
   let parsed;
   try{ parsed = JSON.parse(txt) }catch(e){ parsed = txt }
@@ -27,9 +33,99 @@ async function getJson(url){
 
 // Card handlers
 document.addEventListener('DOMContentLoaded', ()=>{
+  // Login handlers
+  const loginBox = document.getElementById('loginBox');
+  const userArea = document.getElementById('userArea');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+
+  function setLoggedIn(name){
+    localStorage.setItem('bankinc_user', name);
+    document.getElementById('holderName').value = name;
+    loginBox.style.display = 'none';
+    userArea.style.display = 'block';
+  }
+
+  function setLoggedOut(){
+    localStorage.removeItem('bankinc_user');
+    localStorage.removeItem('bankinc_token');
+    localStorage.removeItem('bankinc_card');
+    document.getElementById('holderName').value = '';
+    loginBox.style.display = 'block';
+    userArea.style.display = 'none';
+  }
+
+  // initialize state
+  const existing = localStorage.getItem('bankinc_user');
+  if(existing){ setLoggedIn(existing); } else { setLoggedOut(); }
+  const existingCard = localStorage.getItem('bankinc_card');
+  if(existing){ updateProfileUI(existing, existingCard); }
+
+  // toggle between login and register forms
+  document.getElementById('showLogin').addEventListener('click', ()=>{
+    document.getElementById('loginForm').style.display = 'flex';
+    document.getElementById('registerForm').style.display = 'none';
+  });
+  document.getElementById('showRegister').addEventListener('click', ()=>{
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'flex';
+  });
+
+  btnLogin.addEventListener('click', ()=>{
+    // Call backend login
+    const name = document.getElementById('loginName').value || '';
+    const pass = document.getElementById('loginPassword').value || '';
+    if(!name || !pass){ show('Ingrese usuario y contraseña'); return }
+    postForm(`${baseUrl}/auth/login`, {username: name, password: pass}).then(res => {
+      if(res.status === 200 && res.body && res.body.token){
+        localStorage.setItem('bankinc_token', res.body.token);
+        setLoggedIn(name);
+        show({event:'login', user: name});
+      } else {
+        show({event:'login_failed', body: res.body});
+      }
+    });
+  });
+
+  btnLogout.addEventListener('click', ()=>{
+    setLoggedOut();
+    show('Sesión cerrada');
+  });
+
+  // register flow: create user and immediately create a card
+  document.getElementById('btnRegister').addEventListener('click', async ()=>{
+    const name = document.getElementById('regName').value || '';
+    const pass = document.getElementById('regPassword').value || '';
+    const pid = document.getElementById('regProductId').value || 'PROD01';
+    if(!name || !pass){ show('Ingrese nombre y contraseña'); return }
+    // register user and get token
+    const reg = await postForm(`${baseUrl}/auth/register`, {username: name, password: pass});
+    if(reg.status === 200 && reg.body && reg.body.token){
+      localStorage.setItem('bankinc_token', reg.body.token);
+      // now create card using authenticated token
+      const res = await postForm(`${baseUrl}/cards/generate`, { productId: pid, holderName: name });
+      if(res.status === 200){
+        const cardId = (typeof res.body === 'string') ? res.body : (res.body && res.body.cardId) || res.body;
+        localStorage.setItem('bankinc_user', name);
+        localStorage.setItem('bankinc_card', cardId);
+        setLoggedIn(name);
+        updateProfileUI(name, cardId);
+        show({event:'registered', user:name, card:cardId});
+      } else {
+        show({event:'register_card_failed', status: res.status, body: res.body});
+      }
+    } else {
+      show({event:'register_failed', status: reg.status, body: reg.body});
+    }
+  });
+
+  // Generate card (uses logged user as holderName if not provided)
   document.getElementById('btnGenerate').addEventListener('click', async ()=>{
     const pid = document.getElementById('productId').value || 'PROD01';
-    await postForm(`${baseUrl}/cards/generate?productId=${encodeURIComponent(pid)}`);
+    let holder = document.getElementById('holderName').value || '';
+    const logged = localStorage.getItem('bankinc_user');
+    if(!holder && logged) holder = logged;
+    await postForm(`${baseUrl}/cards/generate`, { productId: pid, holderName: holder });
   });
 
   document.getElementById('btnEnroll').addEventListener('click', async ()=>{
@@ -72,3 +168,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   document.getElementById('productId').focus();
 });
+
+function updateProfileUI(name, cardId){
+  const pn = document.getElementById('profileName');
+  const pc = document.getElementById('profileCard');
+  pn.textContent = name || '-';
+  pc.textContent = cardId || '(ninguna)';
+}

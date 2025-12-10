@@ -4,6 +4,7 @@ import com.bankinc.prueba.exception.CardBlockedException;
 import com.bankinc.prueba.exception.CardNotFoundException;
 import com.bankinc.prueba.model.Card;
 import com.bankinc.prueba.repository.CardRepository;
+import com.bankinc.prueba.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,15 +14,17 @@ import java.util.Random;
 public class CardService {
 
 	private final CardRepository cardRepository;
+	private final UserRepository userRepository;
 	private final Random random = new Random();
 
 	// Inyección de dependencias
-	public CardService(CardRepository cardRepository) {
+	public CardService(CardRepository cardRepository, UserRepository userRepository) {
 		this.cardRepository = cardRepository;
+		this.userRepository = userRepository;
 	}
 
 	// 1. Generar número de tarjeta
-	public String generateCardNumber(String productId, String holderName) {
+	public String generateCardNumber(String productId, String holderName, String username) {
 		if (productId == null || productId.length() != 6) {
 			throw new IllegalArgumentException("El ID del producto debe ser de 6 dígitos.");
 		}
@@ -44,6 +47,10 @@ public class CardService {
 		card.setActive(false); // Por defecto: inactiva
 		card.setBlocked(false);
 		card.setHolderName(holderName != null && !holderName.isBlank() ? holderName : "TITULAR DE TARJETA");
+
+		if (username != null) {
+			userRepository.findByUsername(username).ifPresent(user -> card.setOwner(user));
+		}
 
 		cardRepository.save(card);
 		return cardNumber;

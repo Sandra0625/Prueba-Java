@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.bankinc.prueba.controller.CardControllerIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.188 s -- in com.bankinc.prueba.controller.CardControllerIntegrationTest

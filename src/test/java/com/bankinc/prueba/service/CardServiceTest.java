@@ -26,6 +26,9 @@ public class CardServiceTest {
     @Mock
     private CardRepository cardRepository;
 
+    @Mock
+    private com.bankinc.prueba.repository.UserRepository userRepository;
+
     @InjectMocks
     private CardService cardService;
 
@@ -33,7 +36,7 @@ public class CardServiceTest {
     void generateCardNumber_validProduct_createsAndSavesCard() {
         when(cardRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        String cardId = cardService.generateCardNumber("PROD01", "Juan Perez");
+            String cardId = cardService.generateCardNumber("PROD01", "Juan Perez", null);
 
         assertThat(cardId).isNotBlank().hasSize(16).startsWith("PROD01");
 
