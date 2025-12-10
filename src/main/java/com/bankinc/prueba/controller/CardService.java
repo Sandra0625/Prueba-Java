@@ -4,7 +4,6 @@ import com.bankinc.prueba.exception.CardBlockedException;
 import com.bankinc.prueba.exception.CardNotFoundException;
 import com.bankinc.prueba.model.Card;
 import com.bankinc.prueba.repository.CardRepository;
-import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
