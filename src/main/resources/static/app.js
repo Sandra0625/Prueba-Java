@@ -51,6 +51,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const existing = localStorage.getItem('bankinc_user');
   if(existing){ setLoggedIn(existing); } else { setLoggedOut(); }
 
+  // toggle between login and register forms
+  document.getElementById('showLogin').addEventListener('click', ()=>{
+    document.getElementById('loginForm').style.display = 'flex';
+    document.getElementById('registerForm').style.display = 'none';
+  });
+  document.getElementById('showRegister').addEventListener('click', ()=>{
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'flex';
+  });
+
   btnLogin.addEventListener('click', ()=>{
     const name = document.getElementById('loginName').value || '';
     if(!name){ show('Ingrese su nombre para continuar'); return }
@@ -61,6 +71,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
   btnLogout.addEventListener('click', ()=>{
     setLoggedOut();
     show('Sesión cerrada');
+  });
+
+  // register flow: create user and immediately create a card
+  document.getElementById('btnRegister').addEventListener('click', async ()=>{
+    const name = document.getElementById('regName').value || '';
+    const pid = document.getElementById('regProductId').value || 'PROD01';
+    if(!name){ show('Ingrese su nombre completo'); return }
+    // call API to create card
+    const res = await postForm(`${baseUrl}/cards/generate`, { productId: pid, holderName: name });
+    if(res.status === 200){
+      const cardId = (typeof res.body === 'string') ? res.body : (res.body && res.body.cardId) || res.body;
+      localStorage.setItem('bankinc_user', name);
+      localStorage.setItem('bankinc_card', cardId);
+      setLoggedIn(name);
+      updateProfileUI(name, cardId);
+      show({event:'registered', user:name, card:cardId});
+    } else {
+      show({event:'register_failed', status: res.status, body: res.body});
+    }
   });
 
   // Generate card (uses logged user as holderName if not provided)
@@ -112,3 +141,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   document.getElementById('productId').focus();
 });
+
+function updateProfileUI(name, cardId){
+  const pn = document.getElementById('profileName');
+  const pc = document.getElementById('profileCard');
+  pn.textContent = name || '-';
+  pc.textContent = cardId || '(ninguna)';
+}

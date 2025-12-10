@@ -12,15 +12,33 @@
     <h1>Prueba BankInc</h1>
 
     <section id="loginBox" class="login-box">
-      <h2>Ingreso</h2>
+      <h2>Ingreso / Registro</h2>
       <div class="row">
+        <button id="showLogin" class="btn">Ya tengo cuenta</button>
+        <button id="showRegister" class="btn">Soy nuevo</button>
+      </div>
+
+      <div id="loginForm" class="row">
         <input id="loginName" placeholder="Nombre de usuario / titular" />
         <input id="loginPassword" type="password" placeholder="Contraseña (opcional)" />
         <button id="btnLogin" class="btn">Ingresar</button>
       </div>
+
+      <div id="registerForm" class="row" style="display:none;">
+        <input id="regName" placeholder="Nombre completo" />
+        <input id="regProductId" placeholder="Product ID para la tarjeta (p.ej. PROD01)" />
+        <button id="btnRegister" class="btn">Registrarme y crear tarjeta</button>
+      </div>
     </section>
 
-    <section id="userArea" class="card-box" style="display:none;">
+    <section id="userArea" class="card-box hidden">
+      <h2>Perfil de usuario</h2>
+      <div class="row">
+        <strong>Usuario:</strong> <span id="profileName">-</span>
+      </div>
+      <div class="row">
+        <strong>Card ID:</strong> <span id="profileCard">(ninguna)</span>
+      </div>
       <h2>Tarjetas</h2>
       <div class="row">
         <input id="productId" placeholder="Product ID (p.ej. PROD01)" />
