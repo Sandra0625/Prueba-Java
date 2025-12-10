@@ -11,11 +11,22 @@
   <div class="container">
     <h1>Prueba BankInc</h1>
 
-    <section class="card-box">
+    <section id="loginBox" class="login-box">
+      <h2>Ingreso</h2>
+      <div class="row">
+        <input id="loginName" placeholder="Nombre de usuario / titular" />
+        <input id="loginPassword" type="password" placeholder="Contraseña (opcional)" />
+        <button id="btnLogin" class="btn">Ingresar</button>
+      </div>
+    </section>
+
+    <section id="userArea" class="card-box" style="display:none;">
       <h2>Tarjetas</h2>
       <div class="row">
         <input id="productId" placeholder="Product ID (p.ej. PROD01)" />
+        <input id="holderName" placeholder="Nombre del titular" />
         <button id="btnGenerate" class="btn">Generar tarjeta</button>
+        <button id="btnLogout" class="btn danger">Cerrar sesión</button>
       </div>
 
       <div class="row">

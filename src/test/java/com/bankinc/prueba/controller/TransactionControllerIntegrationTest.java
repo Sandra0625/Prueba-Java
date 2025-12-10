@@ -29,7 +29,7 @@ public class TransactionControllerIntegrationTest {
     @Test
     void fullTransactionFlow() throws Exception {
         // Generar tarjeta
-        MvcResult gen = mockMvc.perform(post("/cards/generate").param("productId", "PROD01"))
+        MvcResult gen = mockMvc.perform(post("/cards/generate").contentType("application/json").content("{\"productId\":\"PROD01\",\"holderName\":\"Prueba Titular\"}"))
                 .andExpect(status().isOk())
                 .andReturn();
         String cardId = gen.getResponse().getContentAsString().trim();

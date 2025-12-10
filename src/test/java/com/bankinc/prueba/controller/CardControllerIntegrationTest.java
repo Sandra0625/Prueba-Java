@@ -25,7 +25,7 @@ public class CardControllerIntegrationTest {
     @Test
     void fullCardFlow() throws Exception {
         // 1) Generar tarjeta
-        MvcResult gen = mockMvc.perform(post("/cards/generate").param("productId", "PROD01"))
+        MvcResult gen = mockMvc.perform(post("/cards/generate").contentType("application/json").content("{\"productId\":\"PROD01\",\"holderName\":\"Prueba Titular\"}"))
                 .andExpect(status().isOk())
                 .andReturn();
         String cardId = gen.getResponse().getContentAsString().trim();

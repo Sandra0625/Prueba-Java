@@ -21,7 +21,7 @@ public class CardService {
 	}
 
 	// 1. Generar número de tarjeta
-	public String generateCardNumber(String productId) {
+	public String generateCardNumber(String productId, String holderName) {
 		if (productId == null || productId.length() != 6) {
 			throw new IllegalArgumentException("El ID del producto debe ser de 6 dígitos.");
 		}
@@ -43,7 +43,7 @@ public class CardService {
 		card.setBalance(BigDecimal.ZERO); // Saldo inicial: cero
 		card.setActive(false); // Por defecto: inactiva
 		card.setBlocked(false);
-		card.setHolderName("TITULAR DE TARJETA");
+		card.setHolderName(holderName != null && !holderName.isBlank() ? holderName : "TITULAR DE TARJETA");
 
 		cardRepository.save(card);
 		return cardNumber;

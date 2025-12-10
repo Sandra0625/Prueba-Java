@@ -17,8 +17,8 @@ public class CardController {
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<String> generateCard(@RequestParam String productId) {
-        String cardId = cardService.generateCardNumber(productId);
+    public ResponseEntity<String> generateCard(@RequestBody CardCreateRequest req) {
+        String cardId = cardService.generateCardNumber(req.getProductId(), req.getHolderName());
         return ResponseEntity.ok(cardId);
     }
 

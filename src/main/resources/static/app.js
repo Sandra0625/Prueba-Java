@@ -27,9 +27,49 @@ async function getJson(url){
 
 // Card handlers
 document.addEventListener('DOMContentLoaded', ()=>{
+  // Login handlers
+  const loginBox = document.getElementById('loginBox');
+  const userArea = document.getElementById('userArea');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+
+  function setLoggedIn(name){
+    localStorage.setItem('bankinc_user', name);
+    document.getElementById('holderName').value = name;
+    loginBox.style.display = 'none';
+    userArea.style.display = 'block';
+  }
+
+  function setLoggedOut(){
+    localStorage.removeItem('bankinc_user');
+    document.getElementById('holderName').value = '';
+    loginBox.style.display = 'block';
+    userArea.style.display = 'none';
+  }
+
+  // initialize state
+  const existing = localStorage.getItem('bankinc_user');
+  if(existing){ setLoggedIn(existing); } else { setLoggedOut(); }
+
+  btnLogin.addEventListener('click', ()=>{
+    const name = document.getElementById('loginName').value || '';
+    if(!name){ show('Ingrese su nombre para continuar'); return }
+    setLoggedIn(name);
+    show({event:'login', user: name});
+  });
+
+  btnLogout.addEventListener('click', ()=>{
+    setLoggedOut();
+    show('Sesión cerrada');
+  });
+
+  // Generate card (uses logged user as holderName if not provided)
   document.getElementById('btnGenerate').addEventListener('click', async ()=>{
     const pid = document.getElementById('productId').value || 'PROD01';
-    await postForm(`${baseUrl}/cards/generate?productId=${encodeURIComponent(pid)}`);
+    let holder = document.getElementById('holderName').value || '';
+    const logged = localStorage.getItem('bankinc_user');
+    if(!holder && logged) holder = logged;
+    await postForm(`${baseUrl}/cards/generate`, { productId: pid, holderName: holder });
   });
 
   document.getElementById('btnEnroll').addEventListener('click', async ()=>{
