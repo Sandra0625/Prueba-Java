@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prueba BankInc - UI</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Prueba BankInc</h1>
+
+    <section class="card-box">
+      <h2>Tarjetas</h2>
+      <div class="row">
+        <input id="productId" placeholder="Product ID (p.ej. PROD01)" />
+        <button id="btnGenerate" class="btn">Generar tarjeta</button>
+      </div>
+
+      <div class="row">
+        <input id="cardId" placeholder="Card ID" />
+        <button id="btnEnroll" class="btn">Enroll</button>
+        <button id="btnBlock" class="btn">Bloquear</button>
+      </div>
+
+      <div class="row">
+        <input id="rechargeAmount" placeholder="Monto recarga" />
+        <button id="btnRecharge" class="btn">Recargar</button>
+        <button id="btnBalance" class="btn">Ver saldo</button>
+      </div>
+    </section>
+
+    <section class="tx-box">
+      <h2>Transacciones</h2>
+      <div class="row">
+        <input id="txCardId" placeholder="Card ID para compra" />
+        <input id="txPrice" placeholder="Precio" />
+        <button id="btnPurchase" class="btn">Comprar</button>
+      </div>
+
+      <div class="row">
+        <input id="txId" placeholder="Transaction ID" />
+        <button id="btnGetTx" class="btn">Ver transacción</button>
+        <button id="btnAnnul" class="btn">Anular transacción</button>
+      </div>
+    </section>
+
+    <section class="results">
+      <h2>Resultados</h2>
+      <pre id="output"></pre>
+    </section>
+  </div>
+</body>
+</html>
