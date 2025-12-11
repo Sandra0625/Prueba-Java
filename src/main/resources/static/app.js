@@ -4,7 +4,16 @@ const $ = id => document.getElementById(id);
 const out = $('output');
 
 function show(v){
-  if(!out) return; // output panel was removed from UI — avoid JS errors
+  if(!out) {
+    // If the debug output element is not present (was removed from UI), fall back
+    // to a visible alert so the user receives immediate feedback from actions.
+    try {
+      alert((new Date()).toLocaleTimeString() + ' - ' + JSON.stringify(v, null, 2));
+    } catch(e) {
+      console.log(v);
+    }
+    return;
+  }
   out.textContent = (new Date()).toLocaleTimeString() + ' - ' + JSON.stringify(v, null, 2) + '\n' + out.textContent;
 }
 
