@@ -10,6 +10,7 @@ C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\controller\Transact
 C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\controller\TransactionServicePlaceholder.java
 C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\dto\AuthRequest.java
 C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\dto\AuthResponse.java
+C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\dto\CardDto.java
 C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\dto\RegisterRequest.java
 C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\exception\CardBlockedException.java
 C:\Users\sandra\Prueba-Java\src\main\java\com\bankinc\prueba\exception\CardNotFoundException.java

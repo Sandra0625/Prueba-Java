@@ -4,6 +4,7 @@ const $ = id => document.getElementById(id);
 const out = $('output');
 
 function show(v){
+  if(!out) return; // output panel was removed from UI — avoid JS errors
   out.textContent = (new Date()).toLocaleTimeString() + ' - ' + JSON.stringify(v, null, 2) + '\n' + out.textContent;
 }
 
@@ -33,140 +34,125 @@ async function getJson(url){
 
 // Card handlers
 document.addEventListener('DOMContentLoaded', ()=>{
-  // Login handlers
-  const loginBox = document.getElementById('loginBox');
-  const userArea = document.getElementById('userArea');
-  const btnLogin = document.getElementById('btnLogin');
+  // Views
+  const viewLogin = document.getElementById('view-login');
+  const viewRegister = document.getElementById('view-register');
+  const viewDashboard = document.getElementById('view-dashboard');
+
+  const btnEntrar = document.getElementById('btnEntrar');
+  const btnGoRegister = document.getElementById('btnGoRegister');
+  const btnSubmitRegister = document.getElementById('btnSubmitRegister');
+  const btnCancelRegister = document.getElementById('btnCancelRegister');
   const btnLogout = document.getElementById('btnLogout');
 
-  function setLoggedIn(name){
-    localStorage.setItem('bankinc_user', name);
-    document.getElementById('holderName').value = name;
-    loginBox.style.display = 'none';
-    userArea.style.display = 'block';
+  const btnRecharge = document.getElementById('btnRecharge');
+  const btnBalance = document.getElementById('btnBalance');
+  const btnPurchase = document.getElementById('btnPurchase');
+
+  function showView(v){
+    viewLogin.classList.add('hidden');
+    viewRegister.classList.add('hidden');
+    viewDashboard.classList.add('hidden');
+    v.classList.remove('hidden');
   }
 
   function setLoggedOut(){
     localStorage.removeItem('bankinc_user');
     localStorage.removeItem('bankinc_token');
     localStorage.removeItem('bankinc_card');
-    document.getElementById('holderName').value = '';
-    loginBox.style.display = 'block';
-    userArea.style.display = 'none';
+    updateProfileUI(null, null);
+    showView(viewLogin);
   }
 
-  // initialize state
-  const existing = localStorage.getItem('bankinc_user');
-  if(existing){ setLoggedIn(existing); } else { setLoggedOut(); }
-  const existingCard = localStorage.getItem('bankinc_card');
-  if(existing){ updateProfileUI(existing, existingCard); }
+  async function fetchMyCardsAndShow(){
+    const res = await getJson(`${baseUrl}/cards/me`);
+    if(res.status === 200 && Array.isArray(res.body) && res.body.length>0){
+      const first = res.body[0];
+      localStorage.setItem('bankinc_card', first.cardId);
+      updateProfileUI(localStorage.getItem('bankinc_user'), first.cardId);
+    }
+    showView(viewDashboard);
+  }
 
-  // toggle between login and register forms
-  document.getElementById('showLogin').addEventListener('click', ()=>{
-    document.getElementById('loginForm').style.display = 'flex';
-    document.getElementById('registerForm').style.display = 'none';
-  });
-  document.getElementById('showRegister').addEventListener('click', ()=>{
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'flex';
-  });
+  // init
+  const existingUser = localStorage.getItem('bankinc_user');
+  if(existingUser && localStorage.getItem('bankinc_token')){
+    fetchMyCardsAndShow();
+  } else {
+    showView(viewLogin);
+  }
 
-  btnLogin.addEventListener('click', ()=>{
-    // Call backend login
-    const name = document.getElementById('loginName').value || '';
-    const pass = document.getElementById('loginPassword').value || '';
-    if(!name || !pass){ show('Ingrese usuario y contraseña'); return }
-    postForm(`${baseUrl}/auth/login`, {username: name, password: pass}).then(res => {
-      if(res.status === 200 && res.body && res.body.token){
-        localStorage.setItem('bankinc_token', res.body.token);
-        setLoggedIn(name);
-        show({event:'login', user: name});
-      } else {
-        show({event:'login_failed', body: res.body});
-      }
-    });
-  });
+  btnGoRegister.addEventListener('click', ()=> showView(viewRegister));
+  btnCancelRegister.addEventListener('click', ()=> showView(viewLogin));
 
-  btnLogout.addEventListener('click', ()=>{
-    setLoggedOut();
-    show('Sesión cerrada');
-  });
-
-  // register flow: create user and immediately create a card
-  document.getElementById('btnRegister').addEventListener('click', async ()=>{
-    const name = document.getElementById('regName').value || '';
-    const pass = document.getElementById('regPassword').value || '';
-    const pid = document.getElementById('regProductId').value || 'PROD01';
-    if(!name || !pass){ show('Ingrese nombre y contraseña'); return }
-    // register user and get token
-    const reg = await postForm(`${baseUrl}/auth/register`, {username: name, password: pass});
-    if(reg.status === 200 && reg.body && reg.body.token){
-      localStorage.setItem('bankinc_token', reg.body.token);
-      // now create card using authenticated token
-      const res = await postForm(`${baseUrl}/cards/generate`, { productId: pid, holderName: name });
-      if(res.status === 200){
-        const cardId = (typeof res.body === 'string') ? res.body : (res.body && res.body.cardId) || res.body;
-        localStorage.setItem('bankinc_user', name);
-        localStorage.setItem('bankinc_card', cardId);
-        setLoggedIn(name);
-        updateProfileUI(name, cardId);
-        show({event:'registered', user:name, card:cardId});
-      } else {
-        show({event:'register_card_failed', status: res.status, body: res.body});
-      }
+  // Login flow
+  btnEntrar.addEventListener('click', async ()=>{
+    const username = document.getElementById('loginUsername').value || '';
+    const password = document.getElementById('loginPassword').value || '';
+    if(!username || !password){ show('Ingrese usuario y contraseña'); return }
+    const r = await postForm(`${baseUrl}/auth/login`, {username, password});
+    if(r.status === 200 && r.body && r.body.token){
+      localStorage.setItem('bankinc_token', r.body.token);
+      localStorage.setItem('bankinc_user', username);
+      await fetchMyCardsAndShow();
+      show({event:'login', user: username});
     } else {
-      show({event:'register_failed', status: reg.status, body: reg.body});
+      show({event:'login_failed', body:r.body});
     }
   });
 
-  // Generate card (uses logged user as holderName if not provided)
-  document.getElementById('btnGenerate').addEventListener('click', async ()=>{
-    const pid = document.getElementById('productId').value || 'PROD01';
-    let holder = document.getElementById('holderName').value || '';
-    const logged = localStorage.getItem('bankinc_user');
-    if(!holder && logged) holder = logged;
-    await postForm(`${baseUrl}/cards/generate`, { productId: pid, holderName: holder });
+  // Register flow: collects name, document, email, celular
+  btnSubmitRegister.addEventListener('click', async ()=>{
+    const name = document.getElementById('reg_fullname').value || '';
+    const doc = document.getElementById('reg_doc').value || '';
+    const email = document.getElementById('reg_email').value || '';
+    const cell = document.getElementById('reg_cell').value || '';
+    if(!name || !doc || !email){ show('Complete nombre, documento y correo'); return }
+
+    // Use email as username and document as initial password (demo). Adjust if you want a different policy.
+    const username = email;
+    const password = doc;
+
+    const reg = await postForm(`${baseUrl}/auth/register`, {username, password});
+    if(reg.status === 200 && reg.body && reg.body.token){
+      localStorage.setItem('bankinc_token', reg.body.token);
+      localStorage.setItem('bankinc_user', username);
+      // create default card for user
+      const gen = await postForm(`${baseUrl}/cards/generate`, {productId: 'PROD01', holderName: name});
+      if(gen.status === 200){
+        await fetchMyCardsAndShow();
+        show({event:'registered', user: username, card: gen.body});
+      } else {
+        show({event:'registered_but_card_failed', body: gen.body});
+      }
+    } else {
+      show({event:'register_failed', body: reg.body});
+    }
   });
 
-  document.getElementById('btnEnroll').addEventListener('click', async ()=>{
-    const id = document.getElementById('cardId').value; if(!id){show('Ingrese cardId'); return}
-    await postForm(`${baseUrl}/cards/${encodeURIComponent(id)}/enroll`);
-  });
+  // Logout
+  btnLogout.addEventListener('click', ()=> setLoggedOut());
 
-  document.getElementById('btnBlock').addEventListener('click', async ()=>{
-    const id = document.getElementById('cardId').value; if(!id){show('Ingrese cardId'); return}
-    await postForm(`${baseUrl}/cards/${encodeURIComponent(id)}/block`);
-  });
-
-  document.getElementById('btnRecharge').addEventListener('click', async ()=>{
-    const id = document.getElementById('cardId').value; const amt = document.getElementById('rechargeAmount').value || '0';
-    if(!id){show('Ingrese cardId'); return}
+  // Dashboard actions
+  btnRecharge.addEventListener('click', async ()=>{
+    const id = document.getElementById('cardId').value || localStorage.getItem('bankinc_card');
+    const amt = document.getElementById('rechargeAmount').value || '0';
+    if(!id){ show('Ingrese cardId'); return }
     await postForm(`${baseUrl}/cards/${encodeURIComponent(id)}/recharge?amount=${encodeURIComponent(amt)}`);
   });
 
-  document.getElementById('btnBalance').addEventListener('click', async ()=>{
-    const id = document.getElementById('cardId').value; if(!id){show('Ingrese cardId'); return}
+  btnBalance.addEventListener('click', async ()=>{
+    const id = document.getElementById('cardId').value || localStorage.getItem('bankinc_card');
+    if(!id){ show('Ingrese cardId'); return }
     await getJson(`${baseUrl}/cards/${encodeURIComponent(id)}/balance`);
   });
 
-  // Transaction handlers
-  document.getElementById('btnPurchase').addEventListener('click', async ()=>{
-    const id = document.getElementById('txCardId').value; const price = parseFloat(document.getElementById('txPrice').value || '0');
-    if(!id){show('Ingrese cardId'); return}
+  btnPurchase.addEventListener('click', async ()=>{
+    const id = document.getElementById('txCardId').value || localStorage.getItem('bankinc_card');
+    const price = parseFloat(document.getElementById('txPrice').value || '0');
+    if(!id){ show('Ingrese cardId'); return }
     await postForm(`${baseUrl}/transaction/purchase`, {cardId: id, price});
   });
-
-  document.getElementById('btnGetTx').addEventListener('click', async ()=>{
-    const tx = document.getElementById('txId').value; if(!tx){show('Ingrese transactionId'); return}
-    await getJson(`${baseUrl}/transaction/${encodeURIComponent(tx)}`);
-  });
-
-  document.getElementById('btnAnnul').addEventListener('click', async ()=>{
-    const tx = document.getElementById('txId').value; if(!tx){show('Ingrese transactionId'); return}
-    await postForm(`${baseUrl}/transaction/anulation`, {transactionId: tx});
-  });
-
-  document.getElementById('productId').focus();
 });
 
 function updateProfileUI(name, cardId){

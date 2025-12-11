@@ -33,7 +33,16 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                    .requestMatchers("/","/index.html","/static/**","/js/**","/css/**","/auth/**","/v3/api-docs/**").permitAll()
+                    .requestMatchers(
+                        "/",
+                        "/index.html",
+                        "/favicon.ico",
+                        "/styles.css",
+                        "/app.js",
+                        "/static/**",
+                        "/auth/**",
+                        "/v3/api-docs/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

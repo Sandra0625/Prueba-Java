@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.bankinc.prueba.dto.CardDto;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
@@ -49,5 +52,29 @@ public class CardController {
     public ResponseEntity<BigDecimal> balance(@PathVariable String cardId) {
         BigDecimal balance = cardService.getBalance(cardId);
         return ResponseEntity.ok(balance);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<CardDto>> myCards() {
+        String username = null;
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            username = SecurityContextHolder.getContext().getAuthentication().getName();
+        }
+        if (username == null) return ResponseEntity.status(401).build();
+
+        List<com.bankinc.prueba.model.Card> cards = cardService.findCardsByOwnerUsername(username);
+        List<CardDto> dto = cards.stream().map(c -> {
+            CardDto d = new CardDto();
+            d.setCardId(c.getCardId());
+            d.setProductId(c.getProductId());
+            d.setHolderName(c.getHolderName());
+            d.setExpirationDate(c.getExpirationDate());
+            d.setBalance(c.getBalance());
+            d.setActive(c.isActive());
+            d.setBlocked(c.isBlocked());
+            return d;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(dto);
     }
 }

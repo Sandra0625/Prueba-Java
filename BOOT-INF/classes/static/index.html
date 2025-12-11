@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prueba BankInc - UI</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="panel centered" id="view-login">
+      <h1>Prueba BankInc</h1>
+      <div class="field">
+        <input id="loginUsername" type="text" placeholder="Usuario (correo)" />
+        <input id="loginPassword" type="password" placeholder="Contraseña" />
+        <div class="row">
+          <button id="btnEntrar" class="btn">Entrar</button>
+          <button id="btnGoRegister" class="btn small">Registrarme</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel centered hidden" id="view-register">
+      <h2>Registro de nuevo usuario</h2>
+      <div class="field">
+        <input id="reg_fullname" type="text" placeholder="Nombre completo" />
+        <input id="reg_doc" type="text" placeholder="Documento de identidad" />
+        <input id="reg_email" type="email" placeholder="Correo electrónico" />
+        <input id="reg_cell" type="tel" placeholder="Celular" />
+        <div class="row">
+          <button id="btnSubmitRegister" class="btn">Crear cuenta</button>
+          <button id="btnCancelRegister" class="btn small">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel centered hidden" id="view-dashboard">
+      <h2>Panel de usuario</h2>
+      <div class="field">
+        <div><strong>Usuario:</strong> <span id="profileName">-</span></div>
+        <div><strong>Tarjeta principal:</strong> <span id="profileCard">(ninguna)</span></div>
+        <div class="row">
+          <button id="btnLogout" class="btn danger">Cerrar sesión</button>
+        </div>
+        <hr style="width:100%;border:none;border-top:1px solid #e9eef6;margin:8px 0" />
+        <h3>Operaciones</h3>
+        <input id="cardId" placeholder="Card ID" />
+        <div class="row">
+          <input id="rechargeAmount" placeholder="Monto recarga" />
+          <button id="btnRecharge" class="btn">Recargar</button>
+        </div>
+        <div class="row">
+          <button id="btnBalance" class="btn">Ver saldo</button>
+        </div>
+        <h3>Compra</h3>
+        <input id="txCardId" placeholder="Card ID para compra" />
+        <input id="txPrice" placeholder="Precio" />
+        <div class="row">
+          <button id="btnPurchase" class="btn">Comprar</button>
+        </div>
+      </div>
+    </div>
+    <pre id="output" style="width:420px;margin-top:12px"></pre>
+  </div>
+</body>
+</html>

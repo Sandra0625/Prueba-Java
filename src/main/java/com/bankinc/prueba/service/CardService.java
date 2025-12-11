@@ -104,4 +104,9 @@ public class CardService {
 		Card card = findCardById(cardId);
 		return card.getBalance();
 	}
+
+	public java.util.List<Card> findCardsByOwnerUsername(String username) {
+		if (username == null) return java.util.Collections.emptyList();
+		return cardRepository.findAllByOwner_Username(username);
+	}
 }

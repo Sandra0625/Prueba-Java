@@ -4,29 +4,63 @@
   --accent:#1e6fff;
   --text:#222;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: #f0f2f5; /* light gray background */
+  color: #111;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.container{
-  max-width:900px;
-  margin:32px auto;
-  padding:24px;
-  background:var(--card);
-  border-radius:10px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+
+.container {
+  width: 420px;
+  background: transparent;
 }
-h1{margin:0 0 12px}
-section{margin-top:18px}
-.row{display:flex;gap:8px;align-items:center;margin:8px 0}
+
+.panel {
+  background: #f5f7fa; /* slightly lighter panel */
+  padding: 28px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.centered { text-align: center }
+
+.field { width: 100%; display:flex; flex-direction:column; gap:8px }
+
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e1e6ee;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.row { width:100%; display:flex; gap:8px; justify-content:center }
+
+.btn { padding: 10px 16px; background:#0b66ff; color:#fff; border:none; border-radius:12px; cursor:pointer }
+.btn.small { padding:8px 12px; border-radius:8px }
+.btn.danger { background:#c0392b }
+.hidden{ display:none }
+
+pre { background:#ffffff; padding:12px; border-radius:6px; height:160px; overflow:auto; width:100% }
+
+h1 { margin:0 0 8px 0 }
+h2 { margin:0 }
 input{padding:10px;border-radius:8px;border:1px solid #dcdfe6;flex:1}
 .btn{background:var(--accent);color:white;padding:10px 14px;border-radius:999px;border:0;cursor:pointer}
 .btn:active{transform:translateY(1px)}
 .results pre{background:#f7f7f9;padding:12px;border-radius:8px;max-height:320px;overflow:auto}
 /* helper class for hiding elements */
+.panel.hidden{display:none !important}
 .hidden{display:none}
 .btn.danger{background:#d9534f}
 @media(max-width:600px){.row{flex-direction:column;align-items:stretch}input{width:100%}}
